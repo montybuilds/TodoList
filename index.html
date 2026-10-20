@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A modern, high-performance, responsive Todo Application with local storage persistence and rich interactive UX.">
+  <meta name="theme-color" content="#0f172a">
+  <title>TaskFlow &mdash; Smart &amp; Elegant Todo App</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="glow-orb orb-1" aria-hidden="true"></div>
+  <div class="glow-orb orb-2" aria-hidden="true"></div>
+
+  <div class="app-wrapper">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">TaskFlow</h1>
+          <p class="brand-subtitle" id="currentDateDisplay">Your daily focus &amp; priorities</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="soundToggleBtn" class="icon-btn" title="Toggle audio feedback" aria-label="Toggle sound effects">
+          <svg class="sound-on-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg class="sound-off-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Progress & Overview Dashboard -->
+    <section class="stats-panel" aria-label="Task progress summary">
+      <div class="stats-info">
+        <div class="stats-text">
+          <span class="stats-label">Daily Progress</span>
+          <h2 class="stats-headline" id="progressHeadline">Keep going, you're doing great!</h2>
+        </div>
+        <div class="stats-numbers">
+          <span id="completedCount" class="highlight-count">0</span>
+          <span class="count-divider">/</span>
+          <span id="totalCount" class="total-count">0</span>
+          <span class="count-unit">done</span>
+        </div>
+      </div>
+      <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBarTrack">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+      </div>
+    </section>
+
+    <!-- Add Task Card -->
+    <section class="card add-task-card" aria-label="Create a task">
+      <form id="todoForm" class="todo-form">
+        <div class="input-primary-row">
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            <input 
+              type="text" 
+              id="taskInput" 
+              class="task-input" 
+              placeholder="What needs to be done today?" 
+              maxlength="150" 
+              required
+              autocomplete="off"
+            >
+          </div>
+          <button type="submit" id="addTaskBtn" class="btn btn-primary">
+            <span class="btn-text">Add Task</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="input-meta-row">
+          <!-- Priority Selector -->
+          <div class="meta-field">
+            <label for="prioritySelect" class="meta-label">Priority</label>
+            <select id="prioritySelect" class="custom-select select-priority">
+              <option value="normal" selected>🟢 Normal</option>
+              <option value="high">🟡 High</option>
+              <option value="urgent">🔴 Urgent</option>
+            </select>
+          </div>
+
+          <!-- Category Selector -->
+          <div class="meta-field">
+            <label for="categorySelect" class="meta-label">Category</label>
+            <select id="categorySelect" class="custom-select select-category">
+              <option value="General" selected>📌 General</option>
+              <option value="Work">💼 Work</option>
+              <option value="Personal">🏡 Personal</option>
+              <option value="Health">💪 Health</option>
+              <option value="Ideas">💡 Ideas</option>
+            </select>
+          </div>
+
+          <!-- Due Date Picker -->
+          <div class="meta-field">
+            <label for="dueDateInput" class="meta-label">Due Date</label>
+            <input type="date" id="dueDateInput" class="custom-date-input">
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Filters, Search, and Sorting Bar -->
+    <section class="toolbar-section" aria-label="Task filters and search">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search tasks..." autocomplete="off">
+        <button id="clearSearchBtn" class="clear-search-btn" title="Clear search" aria-label="Clear search" style="display: none;">&times;</button>
+      </div>
+
+      <div class="filter-sort-group">
+        <div class="filter-pills" role="tablist" aria-label="Task status filters">
+          <button class="filter-pill active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button class="filter-pill" data-filter="active" role="tab" aria-selected="false">Active</button>
+          <button class="filter-pill" data-filter="completed" role="tab" aria-selected="false">Done</button>
+          <button class="filter-pill" data-filter="urgent" role="tab" aria-selected="false">Urgent</button>
+        </div>
+
+        <div class="sort-wrapper">
+          <label for="sortBySelect" class="visually-hidden">Sort tasks</label>
+          <select id="sortBySelect" class="sort-select" title="Sort tasks">
+            <option value="createdAt-desc">Newest First</option>
+            <option value="createdAt-asc">Oldest First</option>
+            <option value="dueDate-asc">Due Date</option>
+            <option value="priority-desc">Priority</option>
+            <option value="alphabetical">A &rarr; Z</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Task List Container -->
+    <main class="tasks-container" aria-label="List of tasks">
+      <ul id="taskList" class="task-list" role="list">
+        <!-- Rendered dynamically by JavaScript -->
+      </ul>
+
+      <!-- Empty State View -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-icon-wrapper" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
+            <line x1="9" y1="9" x2="15" y2="9"></line>
+            <line x1="9" y1="13" x2="15" y2="13"></line>
+            <line x1="9" y1="17" x2="11" y2="17"></line>
+          </svg>
+        </div>
+        <h3 class="empty-title">No tasks found</h3>
+        <p class="empty-desc" id="emptyMessage">Add your first task above to kickstart your day.</p>
+      </div>
+    </main>
+
+    <!-- Bottom Actions and Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span id="activeCountText" class="items-left">0 items remaining</span>
+      </div>
+      <div class="footer-right">
+        <button id="clearCompletedBtn" class="btn btn-ghost" title="Clear all completed tasks">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Clear Completed
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div id="editModal" class="modal-backdrop" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">Edit Task</h3>
+        <button id="closeModalBtn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="editForm" class="modal-body">
+        <input type="hidden" id="editTaskId">
+        <div class="form-group">
+          <label for="editTaskText" class="form-label">Task description</label>
+          <input type="text" id="editTaskText" class="task-input" required maxlength="150">
+        </div>
+        <div class="modal-grid">
+          <div class="form-group">
+            <label for="editPrioritySelect" class="form-label">Priority</label>
+            <select id="editPrioritySelect" class="custom-select">
+              <option value="normal">🟢 Normal</option>
+              <option value="high">🟡 High</option>
+              <option value="urgent">🔴 Urgent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editCategorySelect" class="form-label">Category</label>
+            <select id="editCategorySelect" class="custom-select">
+              <option value="General">📌 General</option>
+              <option value="Work">💼 Work</option>
+              <option value="Personal">🏡 Personal</option>
+              <option value="Health">💪 Health</option>
+              <option value="Ideas">💡 Ideas</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editDueDateInput" class="form-label">Due Date</label>
+            <input type="date" id="editDueDateInput" class="custom-date-input">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
